@@ -4,14 +4,15 @@ let secondValue = null;
 let operatorValue = null;
 let calculatedValue;
 let lastOperator;
-const display = document.querySelector('#display ')
-const aggregatedDisplay = document.querySelector('#aggregator')
+const display = document.querySelector('#display ');
+const aggregatedDisplay = document.querySelector('#aggregator');
 const aggregator = [];
-const allButtons = document.querySelectorAll('button')
-const allNumberButtons = document.querySelectorAll('.number')
-const allOperatorButtons = document.querySelectorAll('.operator')
-const clear = document.querySelector('.clear')
-const compute = document.querySelector('#compute')
+const allButtons = document.querySelectorAll('button');
+const allNumberButtons = document.querySelectorAll('.number');
+const allOperatorButtons = document.querySelectorAll('.operator');
+const clear = document.querySelector('.clear');
+const compute = document.querySelector('#compute');
+const decimal = document.querySelector('.decimal');
 
 
 function updateDisplay(displayValue) {
@@ -35,16 +36,22 @@ function updateAggregatedDisplay(text){
 }
 
 allNumberButtons.forEach(button => {button.addEventListener('click',updateOperands)});
-
 allOperatorButtons.forEach(button => button.addEventListener('click',(event) => lastOperator = event.target.textContent));
 allOperatorButtons.forEach(button => button.addEventListener('click',runOperator));
+display.addEventListener('change',updateDecimalButtonStatus)
+
+function updateDecimalButtonStatus (){
+  if   (display.textContent.contains('.'))
+    decimal.disabled = true;
+  else decimal.disabled = false;
+}
 
 clear.addEventListener('click', clearMemory);
 // compute.addEventListener('click',computeValues);
 
 
 function computeValues(){
-  if (firstValue&&secondValue&&operatorValue){
+  if ((firstValue||firstValue===0)&&(secondValue||secondValue===0)&&operatorValue){
     operate(firstValue,secondValue,operatorValue);
     if (lastOperator === '='){
       updateDisplays(calculatedValue,'= ' + calculatedValue,'push')
@@ -68,19 +75,19 @@ function clearMemory() {
   };
 
 function updateOperands(event){
-  if (!firstValue){
+  if (!firstValue && firstValue !==0){
     firstValue = event.target.textContent;
     updateDisplays(firstValue, firstValue,'push');
   }
-  else if (firstValue&&!operatorValue){
+  else if ((firstValue||firstValue===0)&&!operatorValue){
     firstValue += event.target.textContent;
     updateDisplays(firstValue, firstValue,'change');
   }
-  else if (firstValue&&operatorValue&&!secondValue){
+  else if ((firstValue||firstValue===0)&&operatorValue&&(!secondValue&&secondValue!==0)){
     secondValue = event.target.textContent;
     updateDisplays(secondValue,secondValue,'push');
   }
-  else if (firstValue&&operatorValue&&secondValue&&!calculatedValue){
+  else if ((firstValue||firstValue===0)&&operatorValue&&(secondValue||secondValue===0)&&(!calculatedValue&&calculatedValue!==0)){
     secondValue += event.target.textContent;
     updateDisplays(secondValue,secondValue,'change');
   }
@@ -109,7 +116,7 @@ function runOperator(event){
 };
 
 const add = function(a,b) {
-	return parseInt(a)+parseInt(b);
+	return a + b;
 };
 
 const subtract = function(a,b) {
@@ -147,6 +154,9 @@ function divide(a,b) {
  //Create a new function operate that takes an operator and 2 numbers and then calls one of the above functions on the numbers.
 
  function operate(a,b,operator) {
+  a = +a;
+  b = +b;
+  
   switch (operator) {
   case '+':
     calculatedValue = add(a,b);
